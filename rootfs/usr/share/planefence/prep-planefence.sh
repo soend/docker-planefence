@@ -85,7 +85,7 @@ chmod a+rw /usr/share/planefence/persist/airlinecodes.txt
 # If v2 site is enabled move v2 files from staging to html directory
 if [ "$V2_SITE" == "ON" ]
 then
-	cp -f /usr/share/planefence/stage/v2/* /usr/share/planefence/html/v2
+	cp -f -r /usr/share/planefence/stage/v2/* /usr/share/planefence/html/v2
 fi
 
 #
