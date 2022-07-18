@@ -868,11 +868,19 @@ fi
 # If $PLANEALERT=on then lets call plane-alert to see if the new lines contain any planes of special interest:
 [ "$PLANEALERT" == "ON" ] && ( LOG "Calling Plane-Alert as $PLALERTFILE $INFILETMP"; $PLALERTFILE $INFILETMP; )
 
+[[ "$BASETIME" != "" ]] && echo "11. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- done invoking plane-alert.sh, starting to build the webpage" || true
+# Check if v2 site is enabled, if yes genereate station info file for it
+if [ "$V2_SITE" == "ON" ]
+then
+	[[ "$BASETIME" != "" ]] && echo "11a. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- v2 site enabled, generating station-info.json" || true
+	build_string=$(if [[ -f /root/.buildtime ]]; then printf "%s" "$([[ -f /usr/share/planefence/branch ]] && cat /usr/share/planefence/branch || cat /root/.buildtime)"; fi)
+	station_info_template='{"station-name": "%s", "last-update": "%s", "messages-received": "%s", "station-lat": "%s", "station-lon": "%s",  "distance": "%s", "max-altitude": "%s", "map-url": "%s", "planefence-version": "%s", "build": "%s", "auto-refresh": "%s", "refresh-int": "%s"}'
+	json_string=$(printf "$station_info_template" "$MY" "$(date +"%b %d, %Y %R:%S %Z")" "$(printf "%'.0d" $TOTALLINES)" "$LAT_VIS" "$LON_VIS" "$DIST $DISTUNIT" "$(printf "%'.0d" $MAXALT) $ALTUNIT" "$MYURL" "$VERSION" "$build_string" "$AUTOREFRESH" "$REFRESH_INT")
+	cat <<< "$json_string" > $OUTFILEDIR/v2/station-info.json
+fi
+
 # Next, we are going to print today's HTML file:
 # Note - all text between 'cat' and 'EOF' is HTML code:
-
-[[ "$BASETIME" != "" ]] && echo "11. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- done invoking plane-alert.sh, starting to build the webpage" || true
-
 cat <<EOF >"$OUTFILEHTMTMP"
 <!DOCTYPE html>
 <html>
