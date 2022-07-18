@@ -40,7 +40,8 @@ if [[ "$top$hex$call$start$end" == "" ]] || [[ "$file" == "" ]] || [[ "$1" == "-
 then
   echo "Usage: $0 [top=<int>] [hex=<regex>] [call=<regex>] [start=<regex>] [end=<regex>] file=<inputfiles> type=csv|json"
   echo "The file argument is always required and at least 1 additional argument is required."
-	echo "The arguments can contain plain text or be a regex that is used with the \`awk\` command."
+	echo "The arguments except top can contain plain text or be a regex that is used with the \`awk\` command."
+	echo "Top argument takes int as how many records to return."
 	echo ""
 	echo "The arguments can be passed in any order."
 	echo ""
