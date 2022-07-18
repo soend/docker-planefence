@@ -1,0 +1,24 @@
+th.js-sort-active {
+    border: 1px solid red;
+}
+
+table.js-sort-table.js-sort-desc thead tr > .js-sort-active:not(.js-sort-none):after {
+    font: var(--fa-font-solid);
+    content: '\f063';
+    font-size: 12px;
+    margin: 0 0 0 .5em;
+}
+
+table.js-sort-table.js-sort-asc thead tr > .js-sort-active:not(.js-sort-none):after {
+    font: var(--fa-font-solid);
+    content: '\f062';
+    font-size: 12px;
+    margin: 0 0 0 .5em;
+}
+
+/*th:not(.js-sort-active):after {
+    font: var(--fa-font-solid);
+    content: '\f07d';
+    font-size: 14px;
+    margin: 0 0 0 .5em;
+}*/

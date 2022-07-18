@@ -80,6 +80,14 @@ rm -f /usr/share/planefence/html/background.jpg
 # Copy the airlinecodes.txt file to the persist directory
 cp -n /usr/share/planefence/airlinecodes.txt /usr/share/planefence/persist
 chmod a+rw /usr/share/planefence/persist/airlinecodes.txt
+
+#
+# If v2 site is enabled move v2 files from staging to html directory
+if [ "$V2_SITE" == "ON" ]
+then
+	cp -f /usr/share/planefence/stage/v2/* /usr/share/planefence/html/v2
+fi
+
 #
 #--------------------------------------------------------------------------------
 #
