@@ -58,7 +58,7 @@ async function loadData(init) {
   console.log("Load data..");
 
   // Load station info
-  $.getJSON("station-info.json")
+  $.getJSON("../station-info.json")
     .done(function (data) {
       if (init) {
         updateHeader(data);
@@ -77,8 +77,10 @@ async function loadData(init) {
       console.error("Failed to load station-info.json!");
     });
 
+  const d = new Date();
+  const dateSring = d.getFullYear().toString() + "/" + (d.getMonth() + 1).toString().padStart(2, '0') + "/" + d.getDate().toString().padStart(2, '0');
   // Load last 5 planes from log
-  $.get("../pf_query.php", { top: 5 })
+  $.get("../../pf_query.php", { start: dateSring })
     .done(function (data) {
       // There is problems if API call result is not json array
       if (!Array.isArray(data)) {
