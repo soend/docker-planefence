@@ -54,7 +54,7 @@ function initAutoRefresh(interval) {
   }, interval * 1000);
 }
 
-async function loadData(init) {
+function loadData(init) {
   console.log("Load data..");
 
   // Load station info
