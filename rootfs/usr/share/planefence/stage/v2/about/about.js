@@ -30,7 +30,7 @@ function loadData(init) {
   console.log("Load data..");
 
   // Load station info
-  $.getJSON("../../station-info.json")
+  $.getJSON("station-info.json")
     .done(function (data) {
       if (init) {
         updateHeader(data);
