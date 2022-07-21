@@ -8,7 +8,7 @@ class Menu extends HTMLElement {
         <aside class="menu">
             <ul class="menu-list">
             <li>
-                <a href="../">
+                <a href="index.html">
                     <span class="icon-text">
                         <span class="icon">
                             <i class="fas fa-home"></i>
