@@ -1,4 +1,4 @@
-"use strict";
+import { loadStationInfo } from "./common.js";
 
 let heatLayer;
 
@@ -50,30 +50,6 @@ function updateMostRecentPlanes(data) {
   });
 }
 
-function updateFooter(stationInfo) {
-  const dataTags = ["build", "planefence-version"];
-  const footerElem = $("#footer");
-  dataTags.forEach(function(tag) {
-    footerElem.find("data#"+tag).each(function(key, value) {
-      $(value).html(stationInfo[tag]);
-    });
-  });
-
-  $("footer-component").fadeIn(500);
-}
-
-function updateHeader(stationInfo) {
-  const dataTags = ["station-name"];
-  const headerElem = $("#header");
-  dataTags.forEach(function(tag) {
-    headerElem.find("data#"+tag).each(function(key, value) {
-      $(value).html(stationInfo[tag]);
-    });
-  });
-
-  //$("header-component").fadeIn(500);
-}
-
 function initMap() {
   var map = L.map("map").setView(
     [parseFloat("59.422"), parseFloat("24.748")],
@@ -115,15 +91,12 @@ function initCards() {
   });
 }
 
-function initAutoRefresh(interval) {
-  console.log("Start auto refresh with interval", interval);
-  window.setInterval(function() {
-    loadData(false);
-  }, interval*1000);
-}
-
 async function loadData(init) {
   console.log("Load data..");
+
+  // Load station info
+  loadStationInfo(init, true, updateStationInfo);
+
   // Load heatmap data
   const d = new Date();
   const dateSring = d.getFullYear().toString().slice(-2) + (d.getMonth() + 1).toString().padStart(2, '0') + d.getDate().toString().padStart(2, '0');
@@ -137,27 +110,6 @@ async function loadData(init) {
     }
   }).fail(function() {
     console.error("Failed to load heatmap data!");
-  });
-
-  // Load station info
-  $.getJSON("station-info.json").done(function(data) {
-    updateStationInfo(data);
-
-    if (init) {
-      updateHeader(data);
-      updateFooter(data);
-
-      if (data["auto-refresh"] === "true") {
-        if (parseInt(data["refresh-int"])) {
-          initAutoRefresh(parseInt(data["refresh-int"]));
-        }
-        else {
-          initAutoRefresh(80);
-        }
-      }
-    }
-  }).fail(function() {
-    console.error("Failed to load station-info.json!");
   });
 
   // Load last 5 planes from log
