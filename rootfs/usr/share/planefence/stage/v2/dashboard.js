@@ -91,13 +91,6 @@ function initCards() {
   });
 }
 
-function startAutoRefresh(interval) {
-  console.log("Start auto refresh with interval", interval);
-  window.setInterval(function() {
-    loadRecentPlaneAndHeatmapData(false);
-  }, interval*1000);
-}
-
 function loadData(init) {
   console.log("Load data..");
 

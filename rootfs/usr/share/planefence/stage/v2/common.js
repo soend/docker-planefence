@@ -3,8 +3,6 @@ import { Header } from "./components/header.js";
 import { Footer } from "./components/footer.js";
 import { Menu } from "./components/menu.js";
 
-const STATION_INFO_KEY = "stationInfo";
-
 export function loadStationInfo(init, initAutoRefresh, callback) {
   // Load station info
   $.getJSON("station-info.json").done(function (data) {
@@ -34,7 +32,7 @@ export function loadStationInfo(init, initAutoRefresh, callback) {
 function startAutoRefresh(interval, callback) {
   console.log("Start auto refresh with interval", interval);
   window.setInterval(function() {
-    loadStationInfo(false, callback);
+    loadStationInfo(false, true, callback);
   }, interval*1000);
 }
 
