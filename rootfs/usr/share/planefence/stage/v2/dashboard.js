@@ -104,7 +104,7 @@ function loadData(init) {
   // Load station info
   loadStationInfo(init, true, function(stationInfo) {
     updateStationInfo(stationInfo);
-    loadRecentPlaneAndHeatmapData(init);
+    loadRecentPlaneAndHeatmapData(false);
   });
 
   loadRecentPlaneAndHeatmapData(init);
