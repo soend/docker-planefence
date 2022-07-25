@@ -91,12 +91,35 @@ function initCards() {
   });
 }
 
-async function loadData(init) {
+function startAutoRefresh(interval) {
+  console.log("Start auto refresh with interval", interval);
+  window.setInterval(function() {
+    loadRecentPlaneAndHeatmapData();
+  }, interval*1000);
+}
+
+function loadData(init) {
   console.log("Load data..");
 
   // Load station info
-  loadStationInfo(init, true, updateStationInfo);
+  loadStationInfo(init, true, function(stationInfo) {
+    updateStationInfo(stationInfo);
 
+    // If auto refresh enabled, refresh table
+    if (stationInfo["auto-refresh"] === "true") {
+      if (parseInt(stationInfo["refresh-int"])) {
+        startAutoRefresh(parseInt(stationInfo["refresh-int"]));
+      }
+      else {
+        startAutoRefresh(80);
+      }
+    }
+  });
+
+  loadRecentPlaneAndHeatmapData();
+}
+
+function loadRecentPlaneAndHeatmapData() {
   // Load heatmap data
   const d = new Date();
   const dateSring = d.getFullYear().toString().slice(-2) + (d.getMonth() + 1).toString().padStart(2, '0') + d.getDate().toString().padStart(2, '0');

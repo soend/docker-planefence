@@ -34,7 +34,7 @@ export function loadStationInfo(init, initAutoRefresh, callback) {
 function startAutoRefresh(interval) {
   console.log("Start auto refresh with interval", interval);
   window.setInterval(function() {
-    loadData(false);
+    loadStationInfo(false);
   }, interval*1000);
 }
 
