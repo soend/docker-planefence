@@ -104,16 +104,7 @@ function loadData(init) {
   // Load station info
   loadStationInfo(init, true, function(stationInfo) {
     updateStationInfo(stationInfo);
-
-    // If auto refresh enabled, refresh table
-    if (stationInfo["auto-refresh"] === "true") {
-      if (parseInt(stationInfo["refresh-int"])) {
-        startAutoRefresh(parseInt(stationInfo["refresh-int"]));
-      }
-      else {
-        startAutoRefresh(80);
-      }
-    }
+    loadRecentPlaneAndHeatmapData(init);
   });
 
   loadRecentPlaneAndHeatmapData(init);

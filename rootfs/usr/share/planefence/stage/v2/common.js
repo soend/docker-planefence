@@ -18,10 +18,10 @@ export function loadStationInfo(init, initAutoRefresh, callback) {
 
       if (initAutoRefresh && data["auto-refresh"] === "true") {
         if (parseInt(data["refresh-int"])) {
-          startAutoRefresh(parseInt(data["refresh-int"]));
+          startAutoRefresh(parseInt(data["refresh-int"]), callback);
         }
         else {
-          startAutoRefresh(80);
+          startAutoRefresh(80, callback);
         }
       }
     }
@@ -31,10 +31,10 @@ export function loadStationInfo(init, initAutoRefresh, callback) {
   });
 }
 
-function startAutoRefresh(interval) {
+function startAutoRefresh(interval, callback) {
   console.log("Start auto refresh with interval", interval);
   window.setInterval(function() {
-    loadStationInfo(false);
+    loadStationInfo(false, callback);
   }, interval*1000);
 }
 
