@@ -94,7 +94,7 @@ function initCards() {
 function startAutoRefresh(interval) {
   console.log("Start auto refresh with interval", interval);
   window.setInterval(function() {
-    loadRecentPlaneAndHeatmapData();
+    loadRecentPlaneAndHeatmapData(false);
   }, interval*1000);
 }
 
@@ -116,10 +116,10 @@ function loadData(init) {
     }
   });
 
-  loadRecentPlaneAndHeatmapData();
+  loadRecentPlaneAndHeatmapData(init);
 }
 
-function loadRecentPlaneAndHeatmapData() {
+function loadRecentPlaneAndHeatmapData(init) {
   // Load heatmap data
   const d = new Date();
   const dateSring = d.getFullYear().toString().slice(-2) + (d.getMonth() + 1).toString().padStart(2, '0') + d.getDate().toString().padStart(2, '0');
