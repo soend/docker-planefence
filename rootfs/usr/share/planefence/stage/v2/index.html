@@ -16,71 +16,69 @@
     <header-component></header-component>
 
     <div class="main-content">
-      <menu-component></menu-component>
+      <menu-component class="is-hidden-touch"></menu-component>
 
-      <section class="section">
-        <div class="container">
+      <div class="container is-fluid pt-5 pb-5">
 
-          <div class="columns is-desktop">
-            <div class="column">
-              <div id="station-info" class="card" style="display: none">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    Station info <span class="has-text-grey has-text-weight-light is-size-7 pl-4 card-header-info is-hidden">Last update: <data id="last-update"></data></span>
-                  </p>
-                  <button class="card-header-icon card-toggle">
-                    <span class="icon">
-                      <i class="fas fa-angle-down" aria-hidden="true"></i>
-                    </span>
-                  </button>
-                </header>
-                <div class="card-content">
-                  <div class="content">
-                    <ul>
-                      <li>Last update: <strong><data id="last-update"></data></strong></li>
-                      <li>Maximum distance from <data id="station-location-link"></data>: <strong><data id="distance"></data></strong></li>
-                      <li>Only aircraft below <strong><data id="max-altitude"></data></strong> are reported</li>
-                      <li>Data extracted from <strong><data id="messages-received"></data></strong> ADS-B messages received since midnight.</li>
-                    </ul>
-                  </div>
+        <div class="columns">
+          <div class="column">
+            <div id="station-info" class="card" style="display: none">
+              <header class="card-header">
+                <p class="card-header-title">
+                  Station info <span class="has-text-grey has-text-weight-light is-size-7 pl-4 card-header-info is-hidden">Last update: <data id="last-update"></data></span>
+                </p>
+                <button class="card-header-icon card-toggle">
+                  <span class="icon">
+                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                  </span>
+                </button>
+              </header>
+              <div class="card-content">
+                <div class="content">
+                  <ul>
+                    <li>Last update: <strong><data id="last-update"></data></strong></li>
+                    <li>Maximum distance from <data id="station-location-link"></data>: <strong><data id="distance"></data></strong></li>
+                    <li>Only aircraft below <strong><data id="max-altitude"></data></strong> are reported</li>
+                    <li>Data extracted from <strong><data id="messages-received"></data></strong> ADS-B messages received since midnight.</li>
+                  </ul>
                 </div>
-                <footer class="card-footer">
-                  <data id="map-url" class="card-footer-item"></data>
-                </footer>
               </div>
+              <footer class="card-footer">
+                <data id="map-url" class="card-footer-item"></data>
+              </footer>
             </div>
+          </div>
 
-            <div class="column">
-              <div class="card" style="display: none">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    Most recent planes <button onclick="location.href='./plane-log'" class="button is-text is-small ml-3">View all</button>
-                  </p>
-                  <button class="card-header-icon card-toggle">
-                    <span class="icon">
-                      <i class="fas fa-angle-down" aria-hidden="true"></i>
-                    </span>
-                  </button>
-                </header>
-                <div class="card-content">
-                  <div class="content">
-                    <ul id="recent-planes-list" class="custom-list">
-                    </ul>
-                  </div>
+          <div class="column">
+            <div class="card" style="display: none">
+              <header class="card-header">
+                <p class="card-header-title">
+                  Most recent planes <button onclick="location.href='./plane-log'" class="button is-text is-small ml-3">View all</button>
+                </p>
+                <button class="card-header-icon card-toggle">
+                  <span class="icon">
+                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                  </span>
+                </button>
+              </header>
+              <div class="card-content">
+                <div class="content">
+                  <ul id="recent-planes-list" class="custom-list">
+                  </ul>
                 </div>
               </div>
             </div>
           </div>
-          
-          <div class="columns is-desktop">
-            <div class="column">
-              <!-- Leaflet heat map -->
-              <div id="map" style="height: 60vh"></div>
-            </div>
-          </div>
-
         </div>
-      </section>
+        
+        <div class="columns is-desktop">
+          <div class="column">
+            <!-- Leaflet heat map -->
+            <div id="map" style="height: 60vh"></div>
+          </div>
+        </div>
+
+      </div>
       
     </div>
 
