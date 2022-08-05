@@ -216,11 +216,11 @@ do
 
 	PLANELINE="${ALERT_DICT["${pa_record[0]}"]}"
 	IFS="," read -ra TAGLINE <<< "$PLANELINE"
-	# Parse this into a single line with syntax ICAO,TailNr,Owner,PlaneDescription,date,time,lat,lon,callsign,adsbx_url,squawk
+	# Parse this into a single line with syntax ICAO,TailNr,Owner,PlaneDescription,date,time,lat,lon,callsign,adsbx_url,ICAOType,squawk
 
 	ICAO="${pa_record[0]/ */}" # ICAO (stripped spaces)
 	outrec="${ICAO},"
-
+	
 	TAIL="${TAGLINE[1]}"
 	#Get a tail number if we don't have one
 	if [[ $TAIL == "" ]]; then
@@ -250,6 +250,9 @@ do
 
 	epoch_sec="$(date -d"${pa_record[4]} ${pa_record[5]}" +%s)"
 	outrec+="https://globe.adsbexchange.com/?icao=${pa_record[0]}&showTrace=$(date -u -d@"${epoch_sec}" "+%Y-%m-%d")&zoom=$MAPZOOM&lat=${pa_record[2]}&lon=${pa_record[3]}&timestamp=${epoch_sec},"	# ICAO for insertion into ADSBExchange link
+
+	# Add ICAO type to csv
+	outrec+="${TAGLINE[4]^^}," #ICAO type
 
 	# only add squawk if its in the list
 	x=""
@@ -364,7 +367,7 @@ then
 			[[ "${header[2]:0:1}" == "$" ]] && [[ "${pa_record[2]}" != "" ]] && pa_record[2]="#${pa_record[2]//[[:space:]]/}" 	# owner field, stripped off spaces
 			[[ "${header[3]:0:1}" == "$" ]] && [[ "${pa_record[2]}" != "" ]] && pa_record[3]="#${pa_record[3]}" # equipment field
 			[[ "${header[1]:0:1}" == "$" ]] && [[ "${pa_record[8]}" != "" ]] && pa_record[8]="#${pa_record[8]//[[:space:]-]/}" # flight nr field (connected to tail header)
-			[[ "${pa_record[10]}" != "" ]] && pa_record[10]="#${pa_record[10]}" # 	# squawk
+			[[ "${pa_record[11]}" != "" ]] && pa_record[11]="#${pa_record[11]}" # 	# squawk
 
 			# First build the text of the tweet: reminder:
 			# 0-ICAO,1-TailNr,2-Owner,3-PlaneDescription,4-date,5-time,6-lat,7-lon
@@ -374,7 +377,7 @@ then
 			TWITTEXT+="ICAO: ${pa_record[0]} "
 			[[ "${pa_record[1]}" != "" ]] && TWITTEXT+="Tail: ${pa_record[1]} "
 			[[ "${pa_record[8]}" != "" ]] && TWITTEXT+="Flt: ${pa_record[8]} "
-			[[ "${pa_record[10]}" != "" ]] && TWITTEXT+="#Squawk: ${pa_record[10]}"
+			[[ "${pa_record[10]}" != "" ]] && TWITTEXT+="#Squawk: ${pa_record[11]}"
 			[[ "${pa_record[2]}" != "" ]] && TWITTEXT+="\nOwner: ${pa_record[2]//[&\']/_}" # trailing ']}" for vim broken syntax
 			TWITTEXT+="\nAircraft: ${pa_record[3]}\n"
 			TWITTEXT+="${pa_record[4]} $(sed 's|/|\\/|g' <<< "${pa_record[5]}")\n"
@@ -611,11 +614,11 @@ do
 		IMGURL="$IMGBASE"
 
 		# If there's a squawk, use it to determine the image:
-		if [[ "${pa_record[10]}" != "" ]]
+		if [[ "${pa_record[11]}" != "" ]]
 		then
-			if [[ -f /usr/share/planefence/html/plane-alert/$IMGURL${pa_record[10]}.bmp ]]
+			if [[ -f /usr/share/planefence/html/plane-alert/$IMGURL${pa_record[11]}.bmp ]]
 			then
-				IMGURL+="${pa_record[10]}.bmp"
+				IMGURL+="${pa_record[11]}.bmp"
 			else
 				IMGURL+="SQUAWK.bmp"
 			fi
@@ -635,12 +638,12 @@ do
 			fi
 		fi
 
-		if [[ "${pa_record[10]}" != "" ]]
+		if [[ "${pa_record[11]}" != "" ]]
 		then
 			# print Squawk
 
 			# determine text color for squawk
-			case "${pa_record[10]}" in
+			case "${pa_record[11]}" in
 				"7700")
 					SQCOLOR="#7F0000"
 					;;
@@ -658,7 +661,7 @@ do
 					;;
 			esac
 
-			printf "    %s%s%s\n" "<td style=\"padding:0;\"><div style=\"vertical-align: middle; font-weight:bold; color:#D9EBF9; height:20px; text-align:center; line-height:20px; background:$SQCOLOR;\">" "SQUAWK ${pa_record[10]}" "</div></td>" >&3
+			printf "    %s%s%s\n" "<td style=\"padding:0;\"><div style=\"vertical-align: middle; font-weight:bold; color:#D9EBF9; height:20px; text-align:center; line-height:20px; background:$SQCOLOR;\">" "SQUAWK ${pa_record[11]}" "</div></td>" >&3
 
 		else
 			# print aircraft silhouette if it exists
@@ -682,7 +685,7 @@ do
 		# printf "    %s%s%s\n" "<td>" "<a href=\"http://www.openstreetmap.org/?mlat=${pa_record[6]}&mlon=${pa_record[7]}&zoom=$MAPZOOM\" target=\"_blank\">${pa_record[6]}N, ${pa_record[7]}E</a>" "</td>" >&3 # column: LatN, LonE
 		printf "    %s%s%s\n" "<td>" "<a href=\"${pa_record[9]}\" target=\"_blank\">${pa_record[6]}N, ${pa_record[7]}E</a>" "</td>" >&3 # column: LatN, LonE with link to adsbexchange
 		printf "    %s%s%s\n" "<td>" "${pa_record[8]}" "</td>" >&3 # column: Flight No
-		[[ "$sq" == "true" ]] && printf "    %s%s%s\n" "<td>" "${pa_record[10]}" "</td>" >&3 # column: Squawk
+		[[ "$sq" == "true" ]] && printf "    %s%s%s\n" "<td>" "${pa_record[11]}" "</td>" >&3 # column: Squawk
 		printf "    %s%s%s\n" "<!-- td>" "<a href=\"${pa_record[9]}\" target=\"_blank\">ADSBExchange link</a>" "</td -->" >&3 # column: ADSBX link
 
 

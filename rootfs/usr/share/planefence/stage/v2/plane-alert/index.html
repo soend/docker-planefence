@@ -4,11 +4,11 @@
     <base href="../">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PlaneFence - 24hr Plane log</title>
+    <title>PlaneFence - Plane alerts</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="main.css" />
-    <link rel="stylesheet" href="plane-log/plane-log.css" />
+    <link rel="stylesheet" href="plane-alert/plane-alert.css" />
   </head>
   <body>
     <header-component></header-component>
@@ -21,12 +21,15 @@
             <thead>
               <tr>
                 <th class="js-sort-number">#</th>
-                <th>Transponder ID</th>
-                <th>Flight</th>
+                <th>Icon</th>
+                <th>ICAO</th>
+                <th>Ident</th>
+                <th>Operator</th>
+                <th>Type</th>
                 <th class="js-sort-date">Time First Seen</th>
-                <th class="js-sort-date">Time Last Seen</th>
-                <th class="js-sort-number">Min. Altitude</th>
-                <th class="js-sort-number">Min. Distance</th>
+                <th>Lat/Lon First Seen</th>
+                <th>Flight</th>
+                <th>ICAO Type</th>
               </tr>
             </thead>
             <tbody>
@@ -42,6 +45,6 @@
     <script src="../sort-table.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script type="module" src="common.js"></script>
-    <script type="module" src="plane-log/plane-log.js"></script>
+    <script type="module" src="plane-alert/plane-alert.js"></script>
   </body>
 </html>

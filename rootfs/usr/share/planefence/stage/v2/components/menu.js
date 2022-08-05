@@ -28,7 +28,7 @@ export class Menu extends HTMLElement {
                 </a>
             </li>
             <li>
-                <a>
+                <a href="./plane-alert/">
                     <span class="icon-text">
                         <span class="icon">
                             <i class="fa-solid fa-bell"></i>
