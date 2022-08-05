@@ -37,7 +37,7 @@ do
 	[[ "${i:0:4}" == "lat=" ]] && lat="${i:4}"
 	[[ "${i:0:4}" == "lon=" ]] && lon="${i:4}"
 	# [[ "${i:0:5}" == "file=" ]] && file="${i:5}" # not supported, always the same file for PA
-  [[ "${i:0:5}" == "type=" ]] && output_type="${i:5}"
+    [[ "${i:0:5}" == "type=" ]] && output_type="${i:5}"
 done
 
 # If the command line didn't include any valid args, or if the arg is --help or -?, then show them the way:
@@ -71,6 +71,7 @@ else
 	header[7]="lon"
 	header[8]="call"
 	header[9]="adsbx_link"
+	header[10]="icaotype"
 
 	# concatenate header:
 	printf -v h "%s," "${header[@]}"
