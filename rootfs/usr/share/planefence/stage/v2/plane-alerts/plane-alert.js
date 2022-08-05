@@ -63,7 +63,7 @@ function loadPlaneLogData() {
   const d = new Date();
   const dateSring = d.getFullYear().toString() + "/*";
   // Load last 5 planes from log
-  $.get("../plane-alerts/pa_query.php", { timestamp: dateSring }).done(function (data) {
+  $.get("../plane-alert/pa_query.php", { timestamp: dateSring }).done(function (data) {
       // There is problems if API call result is not json array
       if (!Array.isArray(data)) {
         console.error("Something went wrong with pa_query.php call!");
