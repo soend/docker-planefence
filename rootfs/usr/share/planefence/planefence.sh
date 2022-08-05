@@ -878,258 +878,259 @@ then
 	json_string=$(printf "$station_info_template" "$MY" "$(date +"%b %d, %Y %R:%S %Z")" "$(printf "%'.0d" $TOTALLINES)" "$LAT_VIS" "$LON_VIS" "$DIST $DISTUNIT" "$(printf "%'.0d" $MAXALT) $ALTUNIT" "$MYURL" "$VERSION" "$build_string" "$AUTOREFRESH" "$REFRESH_INT")
 	cat <<< "$json_string" > $OUTFILEDIR/station-info.json
 else
-	# Next, we are going to print today's HTML file:
-	# Note - all text between 'cat' and 'EOF' is HTML code:
-	cat <<EOF >"$OUTFILEHTMTMP"
-	<!DOCTYPE html>
-	<html>
-	<!--
-	# You are taking an interest in this code! Great!
-	# I'm not a professional programmer, and your suggestions and contributions
-	# are always welcome. Join me at the GitHub link shown below, or via email
-	# at kx1t (at) amsat (dot) org.
-	#
-	# Copyright 2020 - 2022 Ramon F. Kolb, kx1t - licensed under the terms and conditions
-	# of GPLv3. The terms and conditions of this license are included with the Github
-	# distribution of this package, and are also available here:
-	# https://github.com/kx1t/docker-planefence/
-	#
-	# The package contains contributions from several other packages, that may be licensed
-	# under different terms. Attributions and our thanks can be found at
-	# https://github.com/kx1t/docker-planefence/blob/main/ATTRIBUTION.md, or at "/attribution.txt"
-	# using the same base URL as you used to get to this web page.
-	#
-	# Summary of License Terms
-	# This program is free software: you can redistribute it and/or modify it under the terms of
-	# the GNU General Public License as published by the Free Software Foundation, either version 3
-	# of the License, or (at your option) any later version.
-	#
-	# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-	# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-	# See the GNU General Public License for more details.
-	#
-	# You should have received a copy of the GNU General Public License along with this program.
-	# If not, see https://www.gnu.org/licenses/.
-	-->
-	<head>
-	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-171737107-1"></script>
-	<script>
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
 
-	gtag('config', 'UA-171737107-1');
-	</script>
-	<script type="text/javascript" src="sort-table.js"></script>
-	EOF
+# Next, we are going to print today's HTML file:
+# Note - all text between 'cat' and 'EOF' is HTML code:
+cat <<EOF >"$OUTFILEHTMTMP"
+<!DOCTYPE html>
+<html>
+<!--
+# You are taking an interest in this code! Great!
+# I'm not a professional programmer, and your suggestions and contributions
+# are always welcome. Join me at the GitHub link shown below, or via email
+# at kx1t (at) amsat (dot) org.
+#
+# Copyright 2020 - 2022 Ramon F. Kolb, kx1t - licensed under the terms and conditions
+# of GPLv3. The terms and conditions of this license are included with the Github
+# distribution of this package, and are also available here:
+# https://github.com/kx1t/docker-planefence/
+#
+# The package contains contributions from several other packages, that may be licensed
+# under different terms. Attributions and our thanks can be found at
+# https://github.com/kx1t/docker-planefence/blob/main/ATTRIBUTION.md, or at "/attribution.txt"
+# using the same base URL as you used to get to this web page.
+#
+# Summary of License Terms
+# This program is free software: you can redistribute it and/or modify it under the terms of
+# the GNU General Public License as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with this program.
+# If not, see https://www.gnu.org/licenses/.
+-->
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-171737107-1"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
 
-	if [[ "${AUTOREFRESH,,}" == "true" ]]
-	then
-		REFRESH_INT="$(sed -n 's/\(^\s*PF_INTERVAL=\)\(.*\)/\2/p' /usr/share/planefence/persist/planefence.config)"
-		cat <<EOF >>"$OUTFILEHTMTMP"
-		<meta http-equiv="refresh" content="$REFRESH_INT">
-	EOF
-	fi
+gtag('config', 'UA-171737107-1');
+</script>
+<script type="text/javascript" src="sort-table.js"></script>
+EOF
 
-	echo "<title>ADS-B 1090 MHz PlaneFence</title>" >>"$OUTFILEHTMTMP"
-
-	if [ -f "$PLANEHEATHTML" ]
-	then
-		cat <<EOF >>"$OUTFILEHTMTMP"
-		<link rel="stylesheet" href="leaflet.css" />
-		<script src="leaflet.js"></script>
-	EOF
-	fi
-
+if [[ "${AUTOREFRESH,,}" == "true" ]]
+then
+	REFRESH_INT="$(sed -n 's/\(^\s*PF_INTERVAL=\)\(.*\)/\2/p' /usr/share/planefence/persist/planefence.config)"
 	cat <<EOF >>"$OUTFILEHTMTMP"
-	<style>
-	body { font: 12px/1.4 "Helvetica Neue", Arial, sans-serif;
-		background-image: url('pf_background.jpg');
-		background-repeat: no-repeat;
-		background-attachment: fixed;
-		background-size: cover;
-		}
-	a { color: #0077ff; }
-	h1 {text-align: center}
-	h2 {text-align: center}
-	.planetable { border: 1; margin: 0; padding: 0; font: 12px/1.4 "Helvetica Neue", Arial, sans-serif; text-align: center }
-	.history { border: none; margin: 0; padding: 0; font: 12px/1.4 "Helvetica Neue", Arial, sans-serif; }
-	.footer{ border: none; margin: 0; padding: 0; font: 12px/1.4 "Helvetica Neue", Arial, sans-serif; text-align: center }
-	/* Sticky table header */
-	table thead tr th {
-	background-color: #f0f6f6;
-	position: sticky;
-	z-index: 100;
-	top: 0;
-	}
-	</style>
-	</head>
+	<meta http-equiv="refresh" content="$REFRESH_INT">
+EOF
+fi
 
-	<body onload="sortTable(document.getElementById('mytable'), 5, -1);">
+echo "<title>ADS-B 1090 MHz PlaneFence</title>" >>"$OUTFILEHTMTMP"
 
-
-	<h1>PlaneFence</h1>
-	<h2>Show aircraft in range of <a href="$MYURL" target="_top">$MY</a> ADS-B station for a specific day</h2>
-	<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
-	<article>
-	<details open>
-	<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Executive Summary</summary>
-	<ul>
-	<li>Last update: $(date +"%b %d, %Y %R:%S %Z")
-	<li>Maximum distance from <a href="https://www.openstreetmap.org/?mlat=$LAT_VIS&mlon=$LON_VIS#map=14/$LAT_VIS/$LON_VIS&layers=H" target=_blank>${LAT_VIS}&deg;N, ${LON_VIS}&deg;E</a>: $DIST $DISTUNIT
-
-	<li>Only aircraft below $(printf "%'.0d" $MAXALT) $ALTUNIT are reported
-	<li>Data extracted from $(printf "%'.0d" $TOTALLINES) <a href="https://en.wikipedia.org/wiki/Automatic_dependent_surveillance_%E2%80%93_broadcast" target="_blank">ADS-B messages</a> received since midnight today
-
-	EOF
-	[[ "$FUDGELOC" != "" ]] && printf "<li> Please note that the reported station coordinates and the center of the circle on the heatmap are rounded for privacy protection. They do not reflect the exact location of the station.\n" >> "$OUTFILEHTMTMP"
-
-	[[ -f "/run/planefence/filtered-$FENCEDATE" ]] && [[ -f "$IGNORELIST" ]] && (( $(grep -c "^[^#;]" $IGNORELIST) > 0 )) && printf "<li> %d entries were filtered out today because of an <a href=\"ignorelist.txt\" target=\"_blank\">ignore list</a>\n" "$(</run/planefence/filtered-$FENCEDATE)" >> "$OUTFILEHTMTMP"
-	[[ "$PA_LINK" != "" ]] && printf "<li> Additionally, click <a href=\"%s\" target=\"_blank\">here</a> to visit Plane Alert: a watchlist of aircraft in general range of the station.\n" "$PA_LINK" >> "$OUTFILEHTMTMP"
-
+if [ -f "$PLANEHEATHTML" ]
+then
 	cat <<EOF >>"$OUTFILEHTMTMP"
-	</ul>
-	</details>
-	</article>
-	</section>
+	<link rel="stylesheet" href="leaflet.css" />
+	<script src="leaflet.js"></script>
+EOF
+fi
 
+cat <<EOF >>"$OUTFILEHTMTMP"
+<style>
+body { font: 12px/1.4 "Helvetica Neue", Arial, sans-serif;
+	   background-image: url('pf_background.jpg');
+	   background-repeat: no-repeat;
+	   background-attachment: fixed;
+  	   background-size: cover;
+     }
+a { color: #0077ff; }
+h1 {text-align: center}
+h2 {text-align: center}
+.planetable { border: 1; margin: 0; padding: 0; font: 12px/1.4 "Helvetica Neue", Arial, sans-serif; text-align: center }
+.history { border: none; margin: 0; padding: 0; font: 12px/1.4 "Helvetica Neue", Arial, sans-serif; }
+.footer{ border: none; margin: 0; padding: 0; font: 12px/1.4 "Helvetica Neue", Arial, sans-serif; text-align: center }
+/* Sticky table header */
+table thead tr th {
+background-color: #f0f6f6;
+position: sticky;
+z-index: 100;
+top: 0;
+}
+</style>
+</head>
+
+<body onload="sortTable(document.getElementById('mytable'), 5, -1);">
+
+
+<h1>PlaneFence</h1>
+<h2>Show aircraft in range of <a href="$MYURL" target="_top">$MY</a> ADS-B station for a specific day</h2>
+<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
+<article>
+<details open>
+<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Executive Summary</summary>
+<ul>
+<li>Last update: $(date +"%b %d, %Y %R:%S %Z")
+<li>Maximum distance from <a href="https://www.openstreetmap.org/?mlat=$LAT_VIS&mlon=$LON_VIS#map=14/$LAT_VIS/$LON_VIS&layers=H" target=_blank>${LAT_VIS}&deg;N, ${LON_VIS}&deg;E</a>: $DIST $DISTUNIT
+
+<li>Only aircraft below $(printf "%'.0d" $MAXALT) $ALTUNIT are reported
+<li>Data extracted from $(printf "%'.0d" $TOTALLINES) <a href="https://en.wikipedia.org/wiki/Automatic_dependent_surveillance_%E2%80%93_broadcast" target="_blank">ADS-B messages</a> received since midnight today
+
+EOF
+[[ "$FUDGELOC" != "" ]] && printf "<li> Please note that the reported station coordinates and the center of the circle on the heatmap are rounded for privacy protection. They do not reflect the exact location of the station.\n" >> "$OUTFILEHTMTMP"
+
+[[ -f "/run/planefence/filtered-$FENCEDATE" ]] && [[ -f "$IGNORELIST" ]] && (( $(grep -c "^[^#;]" $IGNORELIST) > 0 )) && printf "<li> %d entries were filtered out today because of an <a href=\"ignorelist.txt\" target=\"_blank\">ignore list</a>\n" "$(</run/planefence/filtered-$FENCEDATE)" >> "$OUTFILEHTMTMP"
+[[ "$PA_LINK" != "" ]] && printf "<li> Additionally, click <a href=\"%s\" target=\"_blank\">here</a> to visit Plane Alert: a watchlist of aircraft in general range of the station.\n" "$PA_LINK" >> "$OUTFILEHTMTMP"
+
+cat <<EOF >>"$OUTFILEHTMTMP"
+</ul>
+</details>
+</article>
+</section>
+
+<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
+<article>
+<details>
+<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Click on the triangle next to the header to show/collapse the section </summary>
+</details>
+</article>
+</section>
+
+<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
+<article>
+<details open>
+<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Flights In Range Table</summary>
+<ul>
+EOF
+
+printf "<li>Click on the Transponder ID to see the full flight information/history (from <a href=\"https://globe.adsbexchange.com/?lat=$LAT_VIS&lon=$LON_VIS&zoom=11.0\" target=\"_blank\">AdsbExchange</a>)" >> "$OUTFILEHTMTMP"
+printf "<li>Click on the Flight Number to see the full flight information/history (from <a href=http://www.flightaware.com\" target=\"_blank\">FlightAware</a>)" >> "$OUTFILEHTMTMP"
+printf "<li>Click on the Owner Information to see the FAA record for this plane (private, US registered planes only)" >> "$OUTFILEHTMTMP"
+(( ALTCORR > 0 )) && printf "<li>Minimum altitude is the altitude above local ground level, which is %s %s MSL." "$ALTCORR" "$ALTUNIT" >> "$OUTFILEHTMTMP" || printf "<li>Minimum altitude is the altitude above sea level." >> "$OUTFILEHTMTMP"
+
+[[ "$PLANETWEET" != "" ]] && printf "<li>Click on the word &quot;yes&quot; in the <b>Tweeted</b> column to see the Tweet.\n<li>Note that tweets are issued after a slight delay\n" >> "$OUTFILEHTMTMP"
+[[ "$PLANETWEET" != "" ]] && printf "<li>Get notified instantaneously of aircraft in range by following <a href=\"http://twitter.com/%s\" target=\"_blank\">@%s</a> on Twitter!\n" "$PLANETWEET" "$PLANETWEET" >> "$OUTFILEHTMTMP"
+(( $(find $TMPDIR/noisecapt-spectro*.png -daystart -maxdepth 1 -mmin -1440 -print 2>/dev/null | wc -l  ) > 0 )) && printf "<li>Click on the word &quot;Spectrogram&quot; to see the audio spectrogram of the noisiest period while the aircraft was in range\n" >> "$OUTFILEHTMTMP"
+[[ "$PLANEALERT" == "ON" ]] && printf "<li>See a list of aircraft matching the station's Alert List <a href=\"plane-alert\" target=\"_blank\">here</a>\n" >> "$OUTFILEHTMTMP"
+
+printf "<li> Press the header of any of the columns to sort by that column.\n"  >> "$OUTFILEHTMTMP"
+printf "</ul>\n"  >> "$OUTFILEHTMTMP"
+
+[[ "$BASETIME" != "" ]] && echo "12. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- starting to write the PF table to the website" || true
+
+WRITEHTMLTABLE "$OUTFILECSV" "$OUTFILEHTMTMP"
+
+[[ "$BASETIME" != "" ]] && echo "13. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- done writing the PF table to the website" || true
+
+cat <<EOF >>"$OUTFILEHTMTMP"
+</details>
+</article>
+</section>
+EOF
+
+# Write some extra text if NOISE data is present
+if [[ "$HASNOISE" != "false" ]]
+then
+	cat <<EOF >>"$OUTFILEHTMTMP"
 	<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
 	<article>
 	<details>
-	<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Click on the triangle next to the header to show/collapse the section </summary>
+	<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Notes on sound level data</summary>
+	<ul>
+	<li>This data is for informational purposes only and is of indicative value only. It was collected using a non-calibrated device under uncontrolled circumstances.
+	<li>The data unit is &quot;dBFS&quot; (Decibels-Full Scale). 0 dBFS is the loudest sound the device can capture. Lower values, like -99 dBFS, mean very low noise. Higher values, like -10 dBFS, are very loud.
+	<li>The system measures the <a href="https://en.wikipedia.org/wiki/Root_mean_square" target="_blank">RMS</a> of the sound level for contiguous periods of 5 seconds.
+	<li>'Loudness' is the difference (in dB) between the Peak RMS Sound and the 1 hour average. It provides an indication of how much louder than normal it was when the aircraft flew over.
+	<li>Loudness values of greater than $YELLOWLIMIT dB are in red. Values greater than $GREENLIMIT dB are in yellow.
+	<li>'Peak RMS Sound' is the highest measured 5-seconds RMS value during the time the aircraft was in the coverage area.
+	<li>The subsequent values are 1, 5, 10, and 60 minutes averages of these 5 second RMS measurements for the period leading up to the moment the aircraft left the coverage area.
+	<li>One last, but important note: The reported sound levels are general outdoor ambient noise in a suburban environment. The system doesn't just capture airplane noise, but also trucks on a nearby highway, lawnmowers, children playing, people working on their projects, air conditioner noise, etc.
+	<ul>
 	</details>
 	</article>
 	</section>
+	<hr/>
+EOF
+fi
 
+# if $PLANEHEATHTML exists, then add the heatmap
+if [ -f "$PLANEHEATHTML" ]
+then
+	cat <<EOF >>"$OUTFILEHTMTMP"
 	<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
 	<article>
 	<details open>
-	<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Flights In Range Table</summary>
+	<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Heatmap</summary>
 	<ul>
-	EOF
-
-	printf "<li>Click on the Transponder ID to see the full flight information/history (from <a href=\"https://globe.adsbexchange.com/?lat=$LAT_VIS&lon=$LON_VIS&zoom=11.0\" target=\"_blank\">AdsbExchange</a>)" >> "$OUTFILEHTMTMP"
-	printf "<li>Click on the Flight Number to see the full flight information/history (from <a href=http://www.flightaware.com\" target=\"_blank\">FlightAware</a>)" >> "$OUTFILEHTMTMP"
-	printf "<li>Click on the Owner Information to see the FAA record for this plane (private, US registered planes only)" >> "$OUTFILEHTMTMP"
-	(( ALTCORR > 0 )) && printf "<li>Minimum altitude is the altitude above local ground level, which is %s %s MSL." "$ALTCORR" "$ALTUNIT" >> "$OUTFILEHTMTMP" || printf "<li>Minimum altitude is the altitude above sea level." >> "$OUTFILEHTMTMP"
-
-	[[ "$PLANETWEET" != "" ]] && printf "<li>Click on the word &quot;yes&quot; in the <b>Tweeted</b> column to see the Tweet.\n<li>Note that tweets are issued after a slight delay\n" >> "$OUTFILEHTMTMP"
-	[[ "$PLANETWEET" != "" ]] && printf "<li>Get notified instantaneously of aircraft in range by following <a href=\"http://twitter.com/%s\" target=\"_blank\">@%s</a> on Twitter!\n" "$PLANETWEET" "$PLANETWEET" >> "$OUTFILEHTMTMP"
-	(( $(find $TMPDIR/noisecapt-spectro*.png -daystart -maxdepth 1 -mmin -1440 -print 2>/dev/null | wc -l  ) > 0 )) && printf "<li>Click on the word &quot;Spectrogram&quot; to see the audio spectrogram of the noisiest period while the aircraft was in range\n" >> "$OUTFILEHTMTMP"
-	[[ "$PLANEALERT" == "ON" ]] && printf "<li>See a list of aircraft matching the station's Alert List <a href=\"plane-alert\" target=\"_blank\">here</a>\n" >> "$OUTFILEHTMTMP"
-
-	printf "<li> Press the header of any of the columns to sort by that column.\n"  >> "$OUTFILEHTMTMP"
-	printf "</ul>\n"  >> "$OUTFILEHTMTMP"
-
-	[[ "$BASETIME" != "" ]] && echo "12. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- starting to write the PF table to the website" || true
-
-	WRITEHTMLTABLE "$OUTFILECSV" "$OUTFILEHTMTMP"
-
-	[[ "$BASETIME" != "" ]] && echo "13. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- done writing the PF table to the website" || true
-
+	<li>This heatmap reflects passing frequency and does not indicate perceived noise levels
+	<li>The heatmap is limited to the coverage area of PlaneFence, for any aircraft listed in the table above
+	$( [ -d "$OUTFILEDIR/../heatmap" ] && printf "<li>For a heatmap of all planes in range of the station, please click <a href=\"../heatmap\" target=\"_blank\">here</a>" )
+	</ul>
+EOF
+	cat "$PLANEHEATHTML" >>"$OUTFILEHTMTMP"
 	cat <<EOF >>"$OUTFILEHTMTMP"
 	</details>
 	</article>
 	</section>
-	EOF
+	<hr/>
+EOF
+fi
 
-	# Write some extra text if NOISE data is present
-	if [[ "$HASNOISE" != "false" ]]
-	then
-		cat <<EOF >>"$OUTFILEHTMTMP"
-		<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
-		<article>
-		<details>
-		<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Notes on sound level data</summary>
-		<ul>
-		<li>This data is for informational purposes only and is of indicative value only. It was collected using a non-calibrated device under uncontrolled circumstances.
-		<li>The data unit is &quot;dBFS&quot; (Decibels-Full Scale). 0 dBFS is the loudest sound the device can capture. Lower values, like -99 dBFS, mean very low noise. Higher values, like -10 dBFS, are very loud.
-		<li>The system measures the <a href="https://en.wikipedia.org/wiki/Root_mean_square" target="_blank">RMS</a> of the sound level for contiguous periods of 5 seconds.
-		<li>'Loudness' is the difference (in dB) between the Peak RMS Sound and the 1 hour average. It provides an indication of how much louder than normal it was when the aircraft flew over.
-		<li>Loudness values of greater than $YELLOWLIMIT dB are in red. Values greater than $GREENLIMIT dB are in yellow.
-		<li>'Peak RMS Sound' is the highest measured 5-seconds RMS value during the time the aircraft was in the coverage area.
-		<li>The subsequent values are 1, 5, 10, and 60 minutes averages of these 5 second RMS measurements for the period leading up to the moment the aircraft left the coverage area.
-		<li>One last, but important note: The reported sound levels are general outdoor ambient noise in a suburban environment. The system doesn't just capture airplane noise, but also trucks on a nearby highway, lawnmowers, children playing, people working on their projects, air conditioner noise, etc.
-		<ul>
-		</details>
-		</article>
-		</section>
-		<hr/>
-	EOF
-	fi
-
-	# if $PLANEHEATHTML exists, then add the heatmap
-	if [ -f "$PLANEHEATHTML" ]
-	then
-		cat <<EOF >>"$OUTFILEHTMTMP"
-		<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
-		<article>
-		<details open>
-		<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Heatmap</summary>
-		<ul>
-		<li>This heatmap reflects passing frequency and does not indicate perceived noise levels
-		<li>The heatmap is limited to the coverage area of PlaneFence, for any aircraft listed in the table above
-		$( [ -d "$OUTFILEDIR/../heatmap" ] && printf "<li>For a heatmap of all planes in range of the station, please click <a href=\"../heatmap\" target=\"_blank\">here</a>" )
-		</ul>
-	EOF
-		cat "$PLANEHEATHTML" >>"$OUTFILEHTMTMP"
-		cat <<EOF >>"$OUTFILEHTMTMP"
-		</details>
-		</article>
-		</section>
-		<hr/>
-	EOF
-	fi
-
-	# If there's a latest spectrogram, show it
-	if [ -f "$OUTFILEDIR/noisecapt-spectro-latest.png" ]
-	then
-		cat <<EOF >>"$OUTFILEHTMTMP"
-		<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
-		<article>
-		<details open>
-		<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Latest Spectrogram</summary>
-		<ul>
-		<li>Latest as of the time of generation of this page
-		<li>For spectrograms related to overflying aircraft, see table above
-		</ul>
-		<a href="noisecapt-spectro-latest.png" target="_blank"><img src="noisecapt-spectro-latest.png"></a>
-		$([[ -f "/usr/share/planefence/html/noiseplot-latest.jpg" ]] && echo "<a href=\"noiseplot-latest.jpg\" target=\"_blank\"><img src=\"noiseplot-latest.jpg\"></a>")
-		</details>
-		</section>
-		<hr/>
-	EOF
-	fi
-
-	[[ "$BASETIME" != "" ]] && echo "14. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- starting to write the history line to the website" || true
-	WRITEHTMLHISTORY "$OUTFILEDIR" "$OUTFILEHTMTMP"
-	LOG "Done writing history"
-	[[ "$BASETIME" != "" ]] && echo "15. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- done writing the history line to the website" || true
-
-
+# If there's a latest spectrogram, show it
+if [ -f "$OUTFILEDIR/noisecapt-spectro-latest.png" ]
+then
 	cat <<EOF >>"$OUTFILEHTMTMP"
-	<div class="footer">
-	<hr/>PlaneFence $VERSION is part of <a href="https://github.com/kx1t/docker-planefence" target="_blank">KX1T's PlaneFence Open Source Project</a>, available on GitHub. Support is available on the #Planefence channel of the SDR Enthusiasts Discord Server. Click the Chat icon below to join.
-	$(if [[ -f /root/.buildtime ]]; then printf " Build: %s" "$([[ -f /usr/share/planefence/branch ]] && cat /usr/share/planefence/branch || cat /root/.buildtime)"; fi)
-	<br/>&copy; Copyright 2020 - 2022 by Ram&oacute;n F. Kolb, kx1t. Please see <a href="attribution.txt" target="_blank">here</a> for attributions to our contributors and open source packages used.
-	<br/><a href="https://github.com/kx1t/docker-planefence" target="_blank"><img src="https://img.shields.io/github/workflow/status/kx1t/docker-planefence/Deploy%20to%20Docker%20Hub"></a>
-	<a href="https://github.com/kx1t/docker-planefence" target="_blank"><img src="https://img.shields.io/docker/pulls/kx1t/planefence.svg"></a>
-	<a href="https://github.com/kx1t/docker-planefence" target="_blank"><img src="https://img.shields.io/docker/image-size/kx1t/planefence/latest"></a>
-	<a href="https://discord.gg/VDT25xNZzV"><img src="https://img.shields.io/discord/734090820684349521" alt="discord"></a>
-	</div>
-	</body>
-	</html>
-	EOF
+	<section style="border: none; margin: 0; padding: 0; font: 12px/1.4 'Helvetica Neue', Arial, sans-serif;">
+	<article>
+	<details open>
+	<summary style="font-weight: 900; font: 14px/1.4 'Helvetica Neue', Arial, sans-serif;">Latest Spectrogram</summary>
+	<ul>
+	<li>Latest as of the time of generation of this page
+	<li>For spectrograms related to overflying aircraft, see table above
+	</ul>
+	<a href="noisecapt-spectro-latest.png" target="_blank"><img src="noisecapt-spectro-latest.png"></a>
+	$([[ -f "/usr/share/planefence/html/noiseplot-latest.jpg" ]] && echo "<a href=\"noiseplot-latest.jpg\" target=\"_blank\"><img src=\"noiseplot-latest.jpg\"></a>")
+	</details>
+	</section>
+	<hr/>
+EOF
+fi
 
-	# Last thing we need to do, is repoint INDEX.HTML to today's file
+[[ "$BASETIME" != "" ]] && echo "14. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- starting to write the history line to the website" || true
+WRITEHTMLHISTORY "$OUTFILEDIR" "$OUTFILEHTMTMP"
+LOG "Done writing history"
+[[ "$BASETIME" != "" ]] && echo "15. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- done writing the history line to the website" || true
 
-	[[ "$BASETIME" != "" ]] && echo "16. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- starting final cleanup" || true
 
-	pushd "$OUTFILEDIR" > /dev/null
-	mv -f "$OUTFILEHTMTMP" "$OUTFILEHTML"
-	ln -sf "${OUTFILEHTML##*/}" index.html
-	popd > /dev/null
+cat <<EOF >>"$OUTFILEHTMTMP"
+<div class="footer">
+<hr/>PlaneFence $VERSION is part of <a href="https://github.com/kx1t/docker-planefence" target="_blank">KX1T's PlaneFence Open Source Project</a>, available on GitHub. Support is available on the #Planefence channel of the SDR Enthusiasts Discord Server. Click the Chat icon below to join.
+$(if [[ -f /root/.buildtime ]]; then printf " Build: %s" "$([[ -f /usr/share/planefence/branch ]] && cat /usr/share/planefence/branch || cat /root/.buildtime)"; fi)
+<br/>&copy; Copyright 2020 - 2022 by Ram&oacute;n F. Kolb, kx1t. Please see <a href="attribution.txt" target="_blank">here</a> for attributions to our contributors and open source packages used.
+<br/><a href="https://github.com/kx1t/docker-planefence" target="_blank"><img src="https://img.shields.io/github/workflow/status/kx1t/docker-planefence/Deploy%20to%20Docker%20Hub"></a>
+<a href="https://github.com/kx1t/docker-planefence" target="_blank"><img src="https://img.shields.io/docker/pulls/kx1t/planefence.svg"></a>
+<a href="https://github.com/kx1t/docker-planefence" target="_blank"><img src="https://img.shields.io/docker/image-size/kx1t/planefence/latest"></a>
+<a href="https://discord.gg/VDT25xNZzV"><img src="https://img.shields.io/discord/734090820684349521" alt="discord"></a>
+</div>
+</body>
+</html>
+EOF
+
+# Last thing we need to do, is repoint INDEX.HTML to today's file
+
+[[ "$BASETIME" != "" ]] && echo "16. $(bc -l <<< "$(date +%s.%2N) - $BASETIME")s -- starting final cleanup" || true
+
+pushd "$OUTFILEDIR" > /dev/null
+mv -f "$OUTFILEHTMTMP" "$OUTFILEHTML"
+ln -sf "${OUTFILEHTML##*/}" index.html
+popd > /dev/null
 fi
 
 # VERY last thing... ensure that the log doesn't overflow:
