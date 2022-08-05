@@ -19,7 +19,7 @@ function updatePlanesTable(data) {
     tbodyElem.append(`
         <tr>
             <td>`+(key+1)+`</td>
-            <td><img src="../../plane-alert/silhouettes/`+value["icaotype"]+`.bmp"></td>
+            <td><img class="plane-alert-icon" src="../../plane-alert/silhouettes/`+value["icaotype"]+`.bmp"></td>
             <td><a target="_blank" href="`+value["adsbx_link"]+`">`+value["hex_id"]+`</a></td>
             <td><a target="_blank" href="https://flightaware.com/live/modes/`+value["hex_id"]+`/ident/`+value["call"]+`/redirect">`+value["tail"]+`</a></td>
             <td>`+value["name"]+`</td>

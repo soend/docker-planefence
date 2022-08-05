@@ -15,3 +15,7 @@ table.js-sort-table.js-sort-asc thead tr > .js-sort-active:not(.js-sort-none):af
     font-size: 12px;
     margin: 0 0 0 .5em;
 }
+
+.plane-alert-icon {
+    min-width: 80px;
+}
