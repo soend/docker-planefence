@@ -108,7 +108,7 @@ function loadRecentPlaneAndHeatmapData(init) {
   const d = new Date();
   const dateSring = d.getFullYear().toString().slice(-2) + (d.getMonth() + 1).toString().padStart(2, '0') + d.getDate().toString().padStart(2, '0');
 
-  $.getScript("../planeheatdata-" + dateSring + ".js").done(function(data) {
+  $.getScript("planeheatdata-" + dateSring + ".js").done(function(data) {
     if (init) {
       initMap();
     }
@@ -118,7 +118,7 @@ function loadRecentPlaneAndHeatmapData(init) {
   });
 
   // Load last 5 planes from log
-  $.get("../pf_query.php", { top: 5 }).done(function(data) {
+  $.get("pf_query.php", { top: 5 }).done(function(data) {
     // There is problems if API call result is not json array
     if (!Array.isArray(data)) {
       console.error("Something went wrong with pf_query.php call!");

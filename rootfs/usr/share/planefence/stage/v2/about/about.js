@@ -1,7 +1,7 @@
 import { loadStationInfo } from "../common.js";
 
 function loadAttributions() {
-    $("#attribution").html("Loading...").load("../attribution.txt");
+    $("#attribution").html("Loading...").load("attribution.txt");
 }
 
 function loadData(init) {

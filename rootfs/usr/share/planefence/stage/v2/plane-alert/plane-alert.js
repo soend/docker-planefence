@@ -19,7 +19,7 @@ function updatePlanesTable(data) {
     tbodyElem.append(`
         <tr>
             <td>`+(key+1)+`</td>
-            <td><img class="plane-alert-icon" src="../../plane-alert/silhouettes/`+value["icaotype"]+`.bmp"></td>
+            <td><img class="plane-alert-icon" src="../plane-alert/silhouettes/`+value["icaotype"]+`.bmp"></td>
             <td><a target="_blank" href="`+value["adsbx_link"]+`">`+value["hex_id"]+`</a></td>
             <td><a target="_blank" href="https://flightaware.com/live/modes/`+value["hex_id"]+`/ident/`+value["call"]+`/redirect">`+value["tail"]+`</a></td>
             <td>`+value["name"]+`</td>
@@ -63,7 +63,7 @@ function loadPlaneLogData() {
   const d = new Date();
   const dateSring = d.getFullYear().toString() + "/*";
   // Load last 5 planes from log
-  $.get("../../plane-alert/pa_query.php", { timestamp: dateSring }).done(function (data) {
+  $.get("../plane-alert/pa_query.php", { timestamp: dateSring }).done(function (data) {
       // There is problems if API call result is not json array
       if (!Array.isArray(data)) {
         console.error("Something went wrong with pa_query.php call!");

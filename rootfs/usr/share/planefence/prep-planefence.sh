@@ -69,24 +69,30 @@ fi
 mkdir -p /usr/share/planefence/html/plane-alert/silhouettes
 mv -f /usr/share/planefence/html/Silhouettes.zip /tmp/silhouettes-org.zip
 
-cp -f /usr/share/planefence/stage/* /usr/share/planefence/html
-rm -f /usr/share/planefence/html/planefence.config
-mv -f /usr/share/planefence/html/pa_query.php /usr/share/planefence/html/plane-alert
-[[ ! -f /usr/share/planefence/persist/pf-background.jpg ]] && cp -f /usr/share/planefence/html/background.jpg /usr/share/planefence/persist/pf_background.jpg
-[[ ! -f /usr/share/planefence/persist/pa-background.jpg ]] && cp -f /usr/share/planefence/html/background.jpg /usr/share/planefence/persist/pa_background.jpg
-rm -f /usr/share/planefence/html/background.jpg
-[[ ! -f /usr/share/planefence/persist/planefence-ignore.txt ]] && mv -f /usr/share/planefence/html/planefence-ignore.txt /usr/share/planefence/persist/ || rm -f /usr/share/planefence/html/planefence-ignore.txt
-#
-# Copy the airlinecodes.txt file to the persist directory
-cp -n /usr/share/planefence/airlinecodes.txt /usr/share/planefence/persist
-chmod a+rw /usr/share/planefence/persist/airlinecodes.txt
-
 #
 # If v2 site is enabled move v2 files from staging to html directory
 if [ "$V2_SITE" == "ON" ]
 then
-	cp -f -r /usr/share/planefence/stage/v2/* /usr/share/planefence/html/v2
+	cp -f -r /usr/share/planefence/stage/v2/* /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/HeatLayer.js /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/leaflet-heat.js /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/sort-table.js /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/pa_query.php /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/pf_query.php /usr/share/planefence/html
+else
+	cp -f /usr/share/planefence/stage/* /usr/share/planefence/html
+	rm -f /usr/share/planefence/html/planefence.config
+	mv -f /usr/share/planefence/html/pa_query.php /usr/share/planefence/html/plane-alert
+	[[ ! -f /usr/share/planefence/persist/pf-background.jpg ]] && cp -f /usr/share/planefence/html/background.jpg /usr/share/planefence/persist/pf_background.jpg
+	[[ ! -f /usr/share/planefence/persist/pa-background.jpg ]] && cp -f /usr/share/planefence/html/background.jpg /usr/share/planefence/persist/pa_background.jpg
+	rm -f /usr/share/planefence/html/background.jpg
+	[[ ! -f /usr/share/planefence/persist/planefence-ignore.txt ]] && mv -f /usr/share/planefence/html/planefence-ignore.txt /usr/share/planefence/persist/ || rm -f /usr/share/planefence/html/planefence-ignore.txt	
 fi
+
+#
+# Copy the airlinecodes.txt file to the persist directory
+cp -n /usr/share/planefence/airlinecodes.txt /usr/share/planefence/persist
+chmod a+rw /usr/share/planefence/persist/airlinecodes.txt
 
 #
 #--------------------------------------------------------------------------------
