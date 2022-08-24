@@ -73,7 +73,8 @@ mv -f /usr/share/planefence/html/Silhouettes.zip /tmp/silhouettes-org.zip
 # If v2 site is enabled move v2 files from staging to html directory
 if [ "$V2_SITE" == "ON" ]
 then
-	cp -f -r /usr/share/planefence/stage/v2/* /usr/share/planefence/html
+    # idk where this symlink to index.html is coming from so remove it...
+	cp --remove-destination -f -r /usr/share/planefence/stage/v2/* /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/HeatLayer.js /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/leaflet-heat.js /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/sort-table.js /usr/share/planefence/html
