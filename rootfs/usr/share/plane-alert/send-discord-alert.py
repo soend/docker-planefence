@@ -86,8 +86,8 @@ def process_alert(config, plane):
     else:
         description += f"\nSeen near [**{location}**]({plane['adsbx_url']})"
 
-    webhook, embed = pf.discord.build(config["DISCORD_FEEDER_NAME"], config["PA_DISCORD_WEBHOOKS"], title, description, color=color)
-    pf.attach_media(config, "PA", dbinfo, webhook, embed)
+    webhooks, embed = pf.discord.build(config["DISCORD_FEEDER_NAME"], config["PA_DISCORD_WEBHOOKS"], title, description, color=color)
+    pf.attach_media(config, "PA", dbinfo, webhooks, embed)
 
     # Attach data fields
     pf.discord.field(embed, "ICAO", plane['icao'])
@@ -115,7 +115,7 @@ def process_alert(config, plane):
         pf.discord.field(embed, "Link", f"[Learn More]({dbinfo['link']})")
 
     # Send the message
-    pf.send(webhook, config)
+    pf.send(webhooks, config)
 
 
 def main():
