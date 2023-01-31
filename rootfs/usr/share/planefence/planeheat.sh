@@ -309,6 +309,10 @@ else
     echo "var addressPoints = [ ];" >$OUTFILEDIR/planeheatdata-$(date -d $FENCEDATE +"%y%m%d").js
 fi
 
+if [ "$V2_SITE" == "ON" ]
+then
+    LOG "V2 site enabled, skipping html file generation"
+else
 
 DISTMTS=$(bc <<< "$DIST * $TO_METER")
 
@@ -365,3 +369,4 @@ cat <<EOF >>"$PLANEHEATHTML"
 </script>
 
 EOF
+fi
