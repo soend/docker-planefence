@@ -21,6 +21,7 @@ function updatePlanesTable(data) {
               <td>`+(key+1)+`</td>
               <td><a target="_blank" href="`+value["adsbx_link"]+`">`+value["hex_id"]+`</a></td>
               <td><a target="_blank" href="https://flightaware.com/live/modes/`+value["hex_id"]+`/ident/`+value["callsign"]+`/redirect">`+value["callsign"]+`</a></td>
+              <td><img src="`+getOperatorFlagImg(value["callsign"])+`" onerror="this.style.display='none'"></td>
               <td>`+value["start_time"]+`</td>
               <td>`+value["end_time"]+`</td>
               <td>`+value["min_alt"]+` m AGL</td>
@@ -28,6 +29,13 @@ function updatePlanesTable(data) {
           </tr>
       `);
   });
+}
+
+function getOperatorFlagImg(callsign) {
+  const airlineCode = callsign.substring(0,3);
+  const airlineImg = "../operatorflags/"+airlineCode+".bmp";
+  console.log("img:", airlineImg);
+  return airlineImg;
 }
 
 function loadData(init) {
