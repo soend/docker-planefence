@@ -1131,6 +1131,8 @@ pushd "$OUTFILEDIR" > /dev/null
 mv -f "$OUTFILEHTMTMP" "$OUTFILEHTML"
 ln -sf "${OUTFILEHTML##*/}" index.html
 popd > /dev/null
+
+# END OF OLD STATIC WERBSITE GENERATION
 fi
 
 # VERY last thing... ensure that the log doesn't overflow:

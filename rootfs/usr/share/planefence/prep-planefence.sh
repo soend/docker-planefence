@@ -80,6 +80,7 @@ then
 	cp -f /usr/share/planefence/stage/sort-table.js /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/pa_query.php /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/pf_query.php /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/attribution.txt /usr/share/planefence/html
 else
 	cp -f /usr/share/planefence/stage/* /usr/share/planefence/html
 	rm -f /usr/share/planefence/html/planefence.config usr/share/planefence/html/*.template
@@ -88,6 +89,8 @@ else
 	[[ ! -f /usr/share/planefence/persist/pa-background.jpg ]] && cp -f /usr/share/planefence/html/background.jpg /usr/share/planefence/persist/pa_background.jpg
 	rm -f /usr/share/planefence/html/background.jpg
 	[[ ! -f /usr/share/planefence/persist/planefence-ignore.txt ]] && mv -f /usr/share/planefence/html/planefence-ignore.txt /usr/share/planefence/persist/ || rm -f /usr/share/planefence/html/planefence-ignore.txt	
+	# Write the sort-table.js into the web directory as we cannot create it during build:
+	cp -f /usr/share/planefence/stage/sort-table.js /usr/share/planefence/html/plane-alert
 fi
 
 #
@@ -102,8 +105,12 @@ cp -u --backup=numbered /usr/share/planefence/stage/*.template /usr/share/planef
 # Now initialize Plane Alert. Note that this isn't in its own s6 runtime because it's
 # only called synchronously from planefence (if enabled)
 #
-mkdir -p /usr/share/planefence/html/plane-alert
-[[ ! -f /usr/share/planefence/html/plane-alert/index.html ]] && cp /usr/share/plane-alert/html/index.html /usr/share/planefence/html/plane-alert/
+if [ "$V2_SITE" != "ON" ]
+then
+	mkdir -p /usr/share/planefence/html/plane-alert
+	[[ ! -f /usr/share/planefence/html/plane-alert/index.html ]] && cp /usr/share/plane-alert/html/index.html /usr/share/planefence/html/plane-alert/
+fi
+
 # Sync the plane-alert DB with a preference for newer versions on the persist volume:
 cp -n /usr/share/plane-alert/plane-alert-db.txt /usr/share/planefence/persist
 #
@@ -338,8 +345,6 @@ fi
 
 configure_both "AUTOREFRESH" "${PF_AUTOREFRESH,,}"
 
-# Write the sort-table.js into the web directory as we cannot create it during build:
-cp -f /usr/share/planefence/stage/sort-table.js /usr/share/planefence/html/plane-alert
 #
 #--------------------------------------------------------------------------------
 # Check if the dist/alt/speed units haven't changed. If they have changed,
@@ -364,8 +369,11 @@ fi
 #
 #--------------------------------------------------------------------------------
 # Move web page background pictures in place
-[[ -f /usr/share/planefence/persist/pf_background.jpg ]] && cp -f /usr/share/planefence/persist/pf_background.jpg /usr/share/planefence/html || rm -f /usr/share/planefence/html/pf_background.jpg
-[[ -f /usr/share/planefence/persist/pa_background.jpg ]] && cp -f /usr/share/planefence/persist/pa_background.jpg /usr/share/planefence/html/plane-alert || rm -f /usr/share/planefence/html/plane-alert/pa_background.jpg
+if [ "$V2_SITE" != "ON" ]
+then
+	[[ -f /usr/share/planefence/persist/pf_background.jpg ]] && cp -f /usr/share/planefence/persist/pf_background.jpg /usr/share/planefence/html || rm -f /usr/share/planefence/html/pf_background.jpg
+	[[ -f /usr/share/planefence/persist/pa_background.jpg ]] && cp -f /usr/share/planefence/persist/pa_background.jpg /usr/share/planefence/html/plane-alert || rm -f /usr/share/planefence/html/plane-alert/pa_background.jpg
+fi
 
 #--------------------------------------------------------------------------------
 # get the sample planepix file
