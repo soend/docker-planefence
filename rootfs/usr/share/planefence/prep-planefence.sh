@@ -81,6 +81,9 @@ then
 	cp -f /usr/share/planefence/stage/pa_query.php /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/pf_query.php /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/attribution.txt /usr/share/planefence/html
+	# unpack operator falgs
+	mkdir -p /usr/share/planefence/html/operatorflags
+	unzip -qq -o -d /usr/share/planefence/html/operatorflags /usr/share/planefence/stage/OperatorFlags.zip
 else
 	cp -f /usr/share/planefence/stage/* /usr/share/planefence/html
 	rm -f /usr/share/planefence/html/planefence.config usr/share/planefence/html/*.template
