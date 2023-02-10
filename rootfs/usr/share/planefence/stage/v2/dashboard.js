@@ -1,9 +1,12 @@
 import { loadStationInfo } from "./common.js";
 
+let map;
 let heatLayer;
+let stationInfo;
 
-function updateStationInfo(stationInfo) {
+function updateStationInfo() {
   if (!stationInfo) {
+    console.error("Station info missing!");
     return;
   }
 
@@ -50,38 +53,73 @@ function updateMostRecentPlanes(data) {
   });
 }
 
+function getRangeCircleRadiusInMeters() {
+  const distanceString = stationInfo["distance"];
+
+  if (distanceString.indexOf("nm") >= 0)
+    return parseFloat(distanceString.split(" ")[0]) * 1852;
+  else if (distanceString.indexOf("km") >= 0)
+    return parseFloat(distanceString.split(" ")[0]) * 1000;
+  else if (distanceString.indexOf("mi") >= 0)
+    return parseFloat(distanceString.split(" ")[0]) * 1609;
+  else if (distanceString.indexOf("m") >= 0)
+    return parseFloat(distanceString.split(" ")[0]) * 1;
+
+  console.error("Unknown distance unit used!");
+}
+
 function initMap() {
-  var map = L.map("map").setView(
-    [parseFloat("59.422"), parseFloat("24.748")],
-    parseInt("9")
+  if (!stationInfo) {
+    console.error("Station info missing!");
+    return;
+  }
+
+  map = L.map("map").setView(
+    [parseFloat(stationInfo["station-lat"]), parseFloat(stationInfo["station-lon"])],
+    parseInt(stationInfo["heatmapzoom"])
   );
 
   L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
     attribution: '<a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>, &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
-  L.circle([parseFloat("59.422"), parseFloat("24.748")], {
+  L.circle([parseFloat(stationInfo["station-lat"]), parseFloat(stationInfo["station-lon"])], {
     color: "blue",
     fillColor: "#f03",
     fillOpacity: 0.1,
-    radius: 20000.0,
-  }).addTo(map);
-
-  // This var comes from heatmapdata-*.js file
-  addressPoints = addressPoints.map(function (p) { return [p[0], p[1]]; });
-
-  heatLayer = L.heatLayer(addressPoints, {
-    minOpacity: 1,
-    radius: 7,
-    maxZoom: 14,
-    blur: 11,
-    attribution: "<a href=https://github.com/kx1t/docker-planefence target=_blank>docker:kx1t/planefence</a>",
+    radius: getRangeCircleRadiusInMeters(),
   }).addTo(map);
 }
 
 function updateMap() {
-  addressPoints = addressPoints.map(function (p) { return [p[0], p[1]]; });
-  heatLayer.setLatLngs(addressPoints);
+  // First time, init map
+  if (!map) {
+    initMap();
+  }
+
+  if (!addressPoints) {
+    console.error("Failed to load heatmap address points!");
+    return;
+  }
+
+  // These values come from heatmapdata-*.js file
+  const heatData = addressPoints.map(function (p) { return [p[0], p[1]]; });
+
+  // First time and layer does not exist yet
+  if (!heatLayer) {
+    heatLayer = L.heatLayer(heatData, {
+      minOpacity: 1,
+      radius: 7,
+      maxZoom: 14,
+      blur: 11,
+      attribution: "<a href=https://github.com/kx1t/docker-planefence target=_blank>docker:kx1t/planefence</a>",
+    }).addTo(map);
+    console.log("init heatlayer");
+    return;
+  }
+
+  console.log("update heatlayer");
+  heatLayer.setLatLngs(heatData);
 }
 
 function initCards() {
@@ -95,23 +133,19 @@ function loadData(init) {
   console.log("Load data..");
 
   // Load station info
-  loadStationInfo(init, true, function(stationInfo) {
-    updateStationInfo(stationInfo);
-    loadRecentPlaneAndHeatmapData(false);
+  loadStationInfo(init, true, function(station) {
+    stationInfo = station;
+    updateStationInfo();
+    loadRecentPlaneAndHeatmapData();
   });
-
-  loadRecentPlaneAndHeatmapData(init);
 }
 
-function loadRecentPlaneAndHeatmapData(init) {
+function loadRecentPlaneAndHeatmapData() {
   // Load heatmap data
   const d = new Date();
   const dateSring = d.getFullYear().toString().slice(-2) + (d.getMonth() + 1).toString().padStart(2, '0') + d.getDate().toString().padStart(2, '0');
 
-  $.getScript("planeheatdata-" + dateSring + ".js").done(function(data) {
-    if (init) {
-      initMap();
-    }
+  $.getScript("planeheatdata-" + dateSring + ".js").done(function() {
     updateMap();
   }).fail(function() {
     console.error("Failed to load heatmap data!");

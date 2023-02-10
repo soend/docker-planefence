@@ -75,6 +75,9 @@ else
 	[[ "${RECORD[1]:0:1}" == "@" ]] && [[ "${RECORD[7]:0:4}" == "http" ]] && header[7]="tweet_url"
 	[[ "${RECORD[1]:0:1}" == "@" ]] && [[ "${RECORD[12]:0:4}" == "http" ]] && header[12]="tweet_url"
 
+	# We have new value at the end, we dont know the exact place, could be anywhere between 7..12
+	header[${#header[@]}]="icao_type"
+
 	# concatenate header:
 	printf -v h "%s," "${header[@]}"
 	header=${h:0:-1}

@@ -33,37 +33,20 @@ function updatePlanesTable(data) {
   });
 }
 
-function startAutoRefresh(interval) {
-  console.log("Start auto refresh with interval", interval);
-  window.setInterval(function() {
-    loadPlaneLogData();
-  }, interval*1000);
-}
-
 function loadData(init) {
   console.log("Load data..");
 
   // Load station info
-  loadStationInfo(init, false, function(stationInfo) {
-    // If auto refresh enabled, refresh table
-    if (stationInfo["auto-refresh"] === "true") {
-      if (parseInt(stationInfo["refresh-int"])) {
-        startAutoRefresh(parseInt(stationInfo["refresh-int"]));
-      }
-      else {
-        startAutoRefresh(80);
-      }
-    }
+  loadStationInfo(init, true, function(stationInfo) {
+    loadPlaneLogData();
   });
-
-  loadPlaneLogData();
 }
 
 function loadPlaneLogData() {
   const d = new Date();
   const dateSring = d.getFullYear().toString() + "/*";
   // Load last 5 planes from log
-  $.get("../plane-alert/pa_query.php", { timestamp: dateSring }).done(function (data) {
+  $.get("../pa_query.php", { timestamp: dateSring }).done(function (data) {
       // There is problems if API call result is not json array
       if (!Array.isArray(data)) {
         console.error("Something went wrong with pa_query.php call!");
