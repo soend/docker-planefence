@@ -9,7 +9,7 @@
 # The desired CSV file layout is:
 # 0-ICAO,1-[@][Flight],2-date/time_first_heard,3-date/time_last_heard,
 # 4-min_alt,5-min_dist,6-webservicelink,7-[loudness],8-[peak_dB],9-[1min_dB],
-# 10-[5min_dB],11-[10min_dB],11-[1hr_dB],12-[tweetlink]
+# 10-[5min_dB],11-[10min_dB],11-[1hr_dB],12-[tweetlink],13-[icao_type]
 
 # get inputfile
 [[ ! -f "$1" ]] && CSV=/usr/share/planefence/html/planefence-$(date +%y%m%d).csv || CSV="$1"
@@ -97,6 +97,24 @@ do
 		# awk command wouldve been: awk -F "," -v icao="${r[1]#@}" '($1 == icao) {print $2;exit;}' /run/planefence/icao2plane.txt
 		[[ "${r[1]#@}" != "" ]] && [[ "$LOGLEVEL" != "ERROR" ]] && echo " ${r[0]} = ${r[1]#@} (from mictronic database cache)" || true
 	fi
+
+	# Probably not the best place but since the whole csv file is already looped here lets add some more logic
+	# Look up the aircraft ICAO type in the mictronics database (local copy) and place it in the first empty slot
+	for t in {7..12}
+	do
+		icao_type="$(grep -i -w "${r[0]}" /run/planefence/icao2plane.txt 2>/dev/null | head -1 | awk -F "," '{print $3}')"
+		if [[ "${r[t]#@}" == "$icao_type" ]]
+		then
+			break
+		fi
+
+		if [[ "${r[t]#@}" == "" ]]
+		then
+			r[t]+=$icao_type
+			[[ "${r[t]#@}" != "" ]] && [[ "$LOGLEVEL" != "ERROR" ]] && echo " ${r[0]} = ${r[t]#@} (from mictronic database cache)" || true
+			break
+		fi
+	done
 
 	# If the ICAO starts with "A" and there is no flight or tail number, let's algorithmically determine the tail number
 	if [[ "${r[1]#@}" == "" ]] && [[ "${r[0]:0:1}" == "A" ]]

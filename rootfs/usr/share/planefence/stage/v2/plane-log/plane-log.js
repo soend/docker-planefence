@@ -21,21 +21,33 @@ function updatePlanesTable(data) {
               <td>`+(key+1)+`</td>
               <td><a target="_blank" href="`+value["adsbx_link"]+`">`+value["hex_id"]+`</a></td>
               <td><a target="_blank" href="https://flightaware.com/live/modes/`+value["hex_id"]+`/ident/`+value["callsign"]+`/redirect">`+value["callsign"]+`</a></td>
-              <td><img src="`+getOperatorFlagImg(value["callsign"])+`" onerror="this.style.display='none'"></td>
+              <td><img id="`+value["callsign"]+`" onerror="this.style.display='none'"></td>
               <td>`+value["start_time"]+`</td>
               <td>`+value["end_time"]+`</td>
               <td>`+value["min_alt"]+` m AGL</td>
               <td>`+value["min_dist"]+` km</td>
           </tr>
       `);
+
+      getOperatorFlagImg(value["callsign"], value["icao_type"]);
   });
 }
 
-function getOperatorFlagImg(callsign) {
+function getOperatorFlagImg(callsign, icaoType) {
   const airlineCode = callsign.substring(0,3);
   const airlineImg = "../operatorflags/"+airlineCode+".bmp";
-  console.log("img:", airlineImg);
-  return airlineImg;
+  if (icaoType != null){
+    const airlineImgTmp = "../operatorflags/"+airlineCode+"-"+icaoType+".bmp";
+    try {
+      $.get(airlineImgTmp).done(function () {
+        $("#"+callsign)[0].src = airlineImgTmp;
+      })
+      .fail(function () {
+        $("#"+callsign)[0].src = airlineImg;
+      });
+    }
+    catch(err){}
+  }
 }
 
 function loadData(init) {
