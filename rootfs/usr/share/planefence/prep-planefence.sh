@@ -71,6 +71,7 @@ mv -f /usr/share/planefence/html/Silhouettes.zip /tmp/silhouettes-org.zip
 
 #
 # If v2 site is enabled move v2 files from staging to html directory
+configure_planefence "V2_SITE" "$V2_SITE"
 if [ "$V2_SITE" == "ON" ]
 then
     # idk where this symlink to index.html is coming from so remove it...
