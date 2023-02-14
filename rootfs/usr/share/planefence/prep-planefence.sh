@@ -70,6 +70,7 @@ mv -f /usr/share/planefence/html/Silhouettes.zip /tmp/silhouettes-org.zip
 
 #
 # If v2 site is enabled move v2 files from staging to html directory
+configure_planefence "V2_SITE" "$V2_SITE"
 if [ "$V2_SITE" == "ON" ]
 then
     # idk where this symlink to index.html is coming from so remove it...
@@ -80,6 +81,13 @@ then
 	cp -f /usr/share/planefence/stage/pa_query.php /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/pf_query.php /usr/share/planefence/html
 	cp -f /usr/share/planefence/stage/attribution.txt /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/OpenSkyDb-* /usr/share/planefence/html
+	# unpack operator falgs
+	mkdir -p /usr/share/planefence/html/operatorflags
+	unzip -qq -o -d /usr/share/planefence/html/operatorflags /usr/share/planefence/stage/OperatorFlags.zip
+	# copy alert templates
+	cp -f /usr/share/planefence/stage/plane-alert-discord.template /usr/share/planefence/html
+	cp -f /usr/share/planefence/stage/planefence-discord.template /usr/share/planefence/html
 else
 	cp -f /usr/share/planefence/stage/* /usr/share/planefence/html
 	rm -f /usr/share/planefence/html/planefence.config usr/share/planefence/html/*.template
