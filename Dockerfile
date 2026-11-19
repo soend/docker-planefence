@@ -25,7 +25,6 @@ RUN set -x && \
     KEPT_PACKAGES+=(lighttpd) && \
     KEPT_PACKAGES+=(perl) && \
     KEPT_PACKAGES+=(iputils-ping) && \
-    KEPT_PACKAGES+=(ruby) && \
     KEPT_PACKAGES+=(php-cgi) && \
 #
     KEPT_PIP3_PACKAGES+=(tzlocal) && \
@@ -34,15 +33,13 @@ RUN set -x && \
     KEPT_PIP3_PACKAGES+=(requests) && \
     KEPT_PIP3_PACKAGES+=(geopy) && \
 #
-    KEPT_RUBY_PACKAGES+=(twurl) && \
 #
-# Install all the apt, pip3, and gem (ruby) packages:
+# Install all the apt and pip3 packages:
     apt-get update -q && \
 # The baseimage carries the packages it was built with; take Debian's security
 # updates since then too.
     apt-get upgrade -q -y -o Dpkg::Options::="--force-confold" && \
     apt-get install -q -o APT::Autoremove::RecommendsImportant=0 -o APT::Autoremove::SuggestsImportant=0 -o Dpkg::Options::="--force-confold" -y --no-install-recommends  --no-install-suggests ${TEMP_PACKAGES[@]} ${KEPT_PACKAGES[@]} && \
-    gem install twurl && \
     pip3 install --break-system-packages --no-cache-dir ${KEPT_PIP3_PACKAGES[@]} && \
 #
 # Do this here while we still have git installed:
