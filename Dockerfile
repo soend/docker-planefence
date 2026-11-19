@@ -11,6 +11,7 @@ RUN set -x && \
     TEMP_PACKAGES+=(git) && \
     TEMP_PACKAGES+=(gcc) && \
     TEMP_PACKAGES+=(python3-dev) && \
+    TEMP_PACKAGES+=(python3-pip) && \
     TEMP_PACKAGES+=(pkg-config) && \
 #
     KEPT_PACKAGES+=(unzip) && \
@@ -37,9 +38,12 @@ RUN set -x && \
 #
 # Install all the apt, pip3, and gem (ruby) packages:
     apt-get update -q && \
+# The baseimage carries the packages it was built with; take Debian's security
+# updates since then too.
+    apt-get upgrade -q -y -o Dpkg::Options::="--force-confold" && \
     apt-get install -q -o APT::Autoremove::RecommendsImportant=0 -o APT::Autoremove::SuggestsImportant=0 -o Dpkg::Options::="--force-confold" -y --no-install-recommends  --no-install-suggests ${TEMP_PACKAGES[@]} ${KEPT_PACKAGES[@]} && \
     gem install twurl && \
-    pip3 install ${KEPT_PIP3_PACKAGES[@]} && \
+    pip3 install --break-system-packages --no-cache-dir ${KEPT_PIP3_PACKAGES[@]} && \
 #
 # Do this here while we still have git installed:
     git config --global advice.detachedHead false && \
@@ -66,23 +70,30 @@ RUN set -x && \
 # Install Planefence (it was copied in with /rootfs, so this is
 # mainly moving files to the correct location and creating symlinks):
     chmod a+x /usr/share/planefence/*.sh /usr/share/planefence/*.py /usr/share/planefence/*.pl /etc/services.d/planefence/run && \
+# s6-overlay v3, in the current baseimage, ships with-contenv as
+# /command/with-contenv, and every startup script here names the v2 path.
+# It also stops the container if any cont-init script cannot run.
+    ln -sf /command/with-contenv /usr/bin/with-contenv && \
+    chmod a+x /etc/cont-init.d/* /etc/services.d/*/run && \
     ln -s /usr/share/socket30003/socket30003.cfg /usr/share/planefence/socket30003.cfg && \
     ln -s /usr/share/planefence/config_tweeting.sh /root/config_tweeting.sh && \
     curl --compressed --fail -s -L -o /usr/share/planefence/airlinecodes.txt https://raw.githubusercontent.com/kx1t/planefence-airlinecodes/main/airlinecodes.txt && \
     curl --compressed --fail -s -L -o /usr/share/planefence/stage/Silhouettes.zip https://github.com/rikgale/VRSOperatorFlags/raw/main/Silhouettes.zip && \
     curl --compressed --fail -s -L -o /usr/share/planefence/stage/OperatorFlags.zip https://github.com/rikgale/VRSOperatorFlags/raw/main/OperatorFlags.zip && \
-    if \
-            curl --compressed --fail -L -o "/usr/share/planefence/stage/$(date +OpenSkyDb-%Y-%m.csv)" "https://opensky-network.org/datasets/metadata/$(date +aircraft-database-complete-%Y-%m.csv)" \
-        ||  curl --compressed --fail -L -o "/usr/share/planefence/stage/$(date +OpenSkyDb-$(date -d "$(date +%Y-%m-1) -1 month" +%Y-%m).csv)" "https://opensky-network.org/datasets/metadata/$(date +aircraft-database-complete-$(date -d "$(date +%Y-%m-1) -1 month" +%Y-%m).csv)" \
-        ||  curl --compressed --fail -L -o "/usr/share/planefence/stage/$(date +OpenSkyDb-$(date -d "$(date +%Y-%m-1) -2 months" +%Y-%m).csv)" "https://opensky-network.org/datasets/metadata/$(date +aircraft-database-complete-$(date -d "$(date +%Y-%m-1) -2 months" +%Y-%m).csv)"; \
+# OpenSky moved its aircraft database to S3 and stopped publishing monthly
+# files at the old URL; find the newest one by listing the bucket, as upstream
+# docker-planefence does. Stored under the OpenSkyDb-YYYY-MM.csv name the
+# rest of planefence expects.
+    opensky="$(curl -sfL -m 30 'https://s3.opensky-network.org/data-samples/?prefix=metadata/' \
+        | grep -oP '(?<=<Key>metadata/)aircraft-database-complete-[0-9]{4}-[0-9]{2}\.csv(?=</Key>)' \
+        | sort -r | head -n 1 || true)"; \
+    if [ -n "$opensky" ] && curl --compressed --fail -sL -m 900 \
+            -o "/usr/share/planefence/stage/OpenSkyDb-${opensky#aircraft-database-complete-}" \
+            "https://s3.opensky-network.org/data-samples/metadata/$opensky"; \
     then \
-        echo "Got new OpenSkyDb"; \
-    elif curl --compressed --fail -L -o "/usr/share/planefence/stage/OpenSkyDb-2022-11.csv)" "https://opensky-network.org/datasets/metadata/OpenSkyDb-2022-11.csv)"; \
-    then \
-        echo "Couldn't download OpenSKyDb - getting one we know exists, but it may be out of date"; \
-        curl --compressed --fail -L -o "/usr/share/planefence/stage/OpenSkyDb-2022-11.csv)" "https://opensky-network.org/datasets/metadata/OpenSkyDb-2022-11.csv)"; \
+        echo "Got OpenSkyDb from $opensky"; \
     else \
-        echo "Couldn't download OpenSKyDb - continuing without"; \
+        echo "Couldn't download OpenSkyDb - continuing without"; \
     fi && \
 #
 # Ensure the planefence and plane-alert config is available for lighttpd:
